@@ -1,10 +1,7 @@
-// App.js
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
 import { Accelerometer } from 'expo-sensors';
-import DiceDisplay from '../components/molecules/pantallaDado';
 import { SHAKE_THRESHOLD, DICE_MIN, DICE_MAX, SHAKE_COOLDOWN } from '../constants/dadoConstants';
+import { mainScreen } from '@/screens/mainScreen';
 
 export default function App() {
   const [diceValue, setDiceValue] = useState(1);
@@ -51,36 +48,6 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Dado Virtual</Text>
-      <DiceDisplay diceValue={diceValue} isShaking={isShaking} />
-      <Text style={styles.hint}>
-        {Platform.OS === 'web' 
-          ? 'Esta app necesita un dispositivo móvil para funcionar' 
-          : 'Sacude tu teléfono para tirar el dado'}
-      </Text>
-    </View>
+    <mainScreen />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 50,
-  },
-  hint: {
-    marginTop: 40,
-    fontSize: 14,
-    color: '#7a7a7a',
-    textAlign: 'center',
-  },
-});
