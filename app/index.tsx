@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Accelerometer } from 'expo-sensors';
 import { SHAKE_THRESHOLD, DICE_MIN, DICE_MAX, SHAKE_COOLDOWN } from '../constants/dadoConstants';
-import { mainScreen } from '@/screens/mainScreen';
+import { MainScreen } from '@/screens/mainScreen';
 
 export default function App() {
   const [diceValue, setDiceValue] = useState(1);
@@ -48,6 +48,6 @@ export default function App() {
   };
 
   return (
-    <mainScreen />
+    <MainScreen diceValue={diceValue} isShaking={isShaking} />
   );
 }

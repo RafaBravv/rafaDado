@@ -1,17 +1,19 @@
-import { StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export const indice = StyleSheet.create({
     container: {
-      flexDirection: 'column',
       flex: 1,
-      gap: 3,
       backgroundColor: '#1a1a2e',
+    },
+    content: {
+      flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       padding: 20,
+      gap: 20,
     },
     hint: {
-      marginTop: 40,
+      marginTop: 30,
       fontSize: 14,
       color: '#7a7a7a',
       textAlign: 'center',
@@ -38,18 +40,17 @@ export const dado = StyleSheet.create({
 export const header = StyleSheet.create({
     headerContainer: {
         width: '100%',
-        paddingVertical: 20,
+        paddingTop: 20,
         paddingHorizontal: 20,
         backgroundColor: '#16213e',
         alignItems: 'center',
-        borderBottomWidth: 2,
+        borderBottomWidth: 1,
         borderBottomColor: '#e94560',
     },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
         color: '#fff',
-        marginBottom: 50,
     }
 });
 
@@ -66,6 +67,5 @@ export const numDado = StyleSheet.create({
       fontSize: 80,
       fontWeight: 'bold',
       color: '#e94560',
-      marginBottom: 20,
     },
-  });
+});

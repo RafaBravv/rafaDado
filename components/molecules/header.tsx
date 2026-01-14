@@ -8,10 +8,10 @@ interface HeaderProps {
 }
 
 const Header = ({ title }: HeaderProps) => (
-  <View>
-        <SafeAreaView style={header.headerContainer}>
-            <Text style={header.title}>{title}</Text>
-       </SafeAreaView>
+  <View style={header.headerContainer}>
+    <SafeAreaView>
+        <Text style={header.title}>{title}</Text>
+    </SafeAreaView>
   </View>
 );
 
