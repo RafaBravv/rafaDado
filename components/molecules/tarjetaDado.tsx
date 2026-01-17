@@ -1,12 +1,20 @@
 import React from 'react';
 import { View } from 'react-native';
-import DiceNumber from '../atoms/numeroDado';
 import StatusText from '../atoms/textoEstado';
-import { dado } from '@/constants/colores'
+import Dado3D from '../atoms/dado3d';
+import { dado } from '@/constants/colores';
 
-const DiceDisplay = ({ diceValue, isShaking }: { diceValue: number; isShaking: boolean }) => (
+const DiceDisplay = ({ 
+  diceValue, 
+  isShaking, 
+  isStopped 
+}: { 
+  diceValue: number; 
+  isShaking: boolean;
+  isStopped: boolean;
+}) => (
   <View style={dado.diceContainer}>
-    <DiceNumber value={diceValue} />
+    <Dado3D value={diceValue} isShaking={isShaking} isStopped={isStopped} />
     <StatusText isShaking={isShaking} />
   </View>
 );

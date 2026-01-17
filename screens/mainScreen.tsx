@@ -7,18 +7,21 @@ import { indice } from '@/constants/colores';
 interface MainScreenProps {
   diceValue: number;
   isShaking: boolean;
+  isStopped: boolean;
 }
 
-export const MainScreen = ({ diceValue, isShaking }: MainScreenProps) => {
+export const MainScreen = ({ diceValue, isShaking, isStopped }: MainScreenProps) => {
   return (
     <View style={indice.container}>
       <Header title="Dado Virtual" />
       <View style={indice.content}>
-        <DiceDisplay diceValue={diceValue} isShaking={isShaking} />
+        <DiceDisplay diceValue={diceValue} isShaking={isShaking} isStopped={isStopped} />
         <Text style={indice.hint}>
           {Platform.OS === 'web' 
             ? 'Esta app necesita un dispositivo móvil para funcionar' 
-            : 'Sacude tu teléfono para tirar el dado'}
+            : isStopped 
+              ? 'Espera 3 segundos para volver a tirar...'
+              : 'Sacude tu teléfono para tirar el dado'}
         </Text>
       </View>
     </View>

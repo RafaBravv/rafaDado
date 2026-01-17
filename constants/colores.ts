@@ -37,6 +37,18 @@ export const dado = StyleSheet.create({
     },
 });
 
+export const vistaDado = StyleSheet.create({
+  container: {
+    width: 240,
+    height: 240,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  glView: {
+    flex: 1,
+  },
+});
+
 export const header = StyleSheet.create({
     headerContainer: {
         width: '100%',

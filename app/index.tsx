@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Accelerometer } from 'expo-sensors';
-import { SHAKE_THRESHOLD, DICE_MIN, DICE_MAX, SHAKE_COOLDOWN } from '../constants/dadoConstants';
+import { SHAKE_THRESHOLD, DICE_MIN, DICE_MAX, SHAKE_COOLDOWN, DICE_STOP_DURATION } from '../constants/dadoConstants';
 import { MainScreen } from '@/screens/mainScreen';
 
 export default function App() {
   const [diceValue, setDiceValue] = useState(1);
   const [isShaking, setIsShaking] = useState(false);
+  const [isStopped, setIsStopped] = useState(false);
   const [lastShakeTime, setLastShakeTime] = useState(0);
 
   useEffect(() => {
@@ -19,7 +20,8 @@ export default function App() {
         const currentTime = Date.now();
         const timeSinceLastShake = currentTime - lastShakeTime;
 
-        if (acceleration > SHAKE_THRESHOLD && timeSinceLastShake > SHAKE_COOLDOWN) {
+        // No detectar sacudidas si el dado está detenido
+        if (!isStopped && acceleration > SHAKE_THRESHOLD && timeSinceLastShake > SHAKE_COOLDOWN) {
           handleShake();
           setLastShakeTime(currentTime);
         }
@@ -35,19 +37,26 @@ export default function App() {
         subscription.remove();
       }
     };
-  }, [lastShakeTime]);
+  }, [lastShakeTime, isStopped]);
 
   const handleShake = () => {
     setIsShaking(true);
     
+    // Después de 500ms, generar número y detener el dado
     setTimeout(() => {
       const randomValue = Math.floor(Math.random() * (DICE_MAX - DICE_MIN + 1)) + DICE_MIN;
       setDiceValue(randomValue);
       setIsShaking(false);
+      setIsStopped(true);
+      
+      // Después de 5 segundos, permitir nueva sacudida
+      setTimeout(() => {
+        setIsStopped(false);
+      }, DICE_STOP_DURATION);
     }, 500);
   };
 
   return (
-    <MainScreen diceValue={diceValue} isShaking={isShaking} />
+    <MainScreen diceValue={diceValue} isShaking={isShaking} isStopped={isStopped} />
   );
 }
