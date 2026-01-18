@@ -1,53 +1,92 @@
-> Edited for use in IDX on 07/09/12
+# RafaDado
 
-# Welcome to your Expo app 👋
+Una aplicación móvil interactiva que simula el lanzamiento de un dado utilizando el acelerómetro del dispositivo. Simplemente sacude tu teléfono y observa cómo el dado gira en 3D hasta mostrar un resultado aleatorio.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+https://github.com/user-attachments/assets/04b8e444-3e02-4574-b41f-f2d24221be4c
 
-#### Android
 
-Android previews are defined as a `workspace.onStart` hook and started as a vscode task when the workspace is opened/started.
+## ¿Qué hace esta aplicación?
 
-Note, if you can't find the task, either:
-- Rebuild the environment (using command palette: `IDX: Rebuild Environment`), or
-- Run `npm run android -- --tunnel` command manually run android and see the output in your terminal. The device should pick up this new command and switch to start displaying the output from it.
+Esta app convierte tu teléfono en un dado virtual. Cuando sacudes el dispositivo, el dado 3D gira de manera realista y se detiene mostrando un número del 1 al 6. Es como tener un dado físico en tu bolsillo, pero con animaciones fluidas y un diseño moderno.
 
-In the output of this command/task, you'll find options to open the app in a
+### Características principales:
+- Modelo 3D realista del dado
+- Animación suave de 0.7 segundos al lanzar
+- Utiliza el sensor de movimiento del teléfono para detectar sacudidas
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Propósito del Proyecto
 
-You'll also find options to open the app's developer menu, reload the app, and more.
+Este proyecto fue creado como una demostración de:
+- Integración de gráficos 3D en aplicaciones móviles React Native
+- Uso de sensores de dispositivo para interacción natural
+- Arquitectura limpia y escalable en aplicaciones móviles
+- Prácticas modernas de desarrollo con TypeScript y Expo
 
-#### Web
+## Tecnologías Utilizadas
 
-Web previews will be started and managred automatically. Use the toolbar to manually refresh.
+### Renderizado 3D
+- **Three.js** - Biblioteca para gráficos 3D en la web
+- **expo-three** - Integración de Three.js con React Native
+- **expo-gl** - Proporciona el contexto WebGL para renderizar gráficos 3D
+- **GLTFLoader** - Cargador para modelos 3D en formato GLB
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Sensores
+- **expo-sensors** - Acceso al acelerómetro del dispositivo para detectar movimientos
 
-## Get a fresh project
+## Arquitectura del Proyecto
 
-When you're ready, run:
+El proyecto sigue una arquitectura de componentes organizados por responsabilidad:
 
-```bash
-npm run reset-project
+```
+rafadado/
+├── app/                        # Rutas y pantallas principales
+│   ├── _layout.tsx            # Configuración de navegación
+│   └── index.tsx              # Pantalla principal con lógica del dado
+├── components/
+│   ├── atoms/                 # Componentes básicos reutilizables
+│   │   ├── dado3d.tsx        # Renderizado del modelo 3D
+│   │   ├── numeroResultado.tsx # Indicador del resultado
+│   │   └── textoEstado.tsx   # Texto de estado (girando...)
+│   └── molecules/             # Componentes compuestos
+│       ├── header.tsx         # Encabezado de la app
+│       └── tarjetaDado.tsx   # Contenedor del dado 3D
+├── screens/
+│   └── mainScreen.tsx         # Pantalla principal que integra todo
+├── constants/
+│   ├── colores.ts            # Estilos y temas visuales
+│   └── dadoConstants.ts      # Configuración del dado (rotaciones, tiempos)
+└── assets/
+    └── models/
+        └── dice.glb          # Modelo 3D del dado
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Patrón de Diseño
+- **Atomic Design**: Separación en atoms (componentes básicos) y molecules (componentes compuestos)
+- **Separación de Responsabilidades**: Lógica de negocio separada de la presentación
+- **Configuración Centralizada**: Constantes y estilos en archivos dedicados
 
-## Learn more
+## Cómo Usar
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Abre la aplicación en tu dispositivo móvil
+2. Sostén el teléfono firmemente
+3. Sacude el dispositivo con un movimiento rápido
+4. Observa cómo el dado gira y muestra el resultado
+5. Espera 3 segundos antes de lanzar nuevamente
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Configuración Técnica
 
-## Join the community
+### Parámetros del Dado
+- **Umbral de Sacudida**: 1.3 unidades de aceleración
+- **Cooldown**: 1.2 segundo entre detecciones
+- **Duración de Animación**: 700ms
 
-Join our community of developers creating universal apps.
+### Renderizado 3D
+- **Escala del Modelo**: 0.3x
+- **Distancia de Cámara**: 1 unidad
+- **Material**: MeshStandardMaterial con acabado semi-mate
+- **Iluminación**: Luz ambiental + luz direccional
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+**Nota**: Esta aplicación requiere un dispositivo móvil físico con acelerómetro para funcionar correctamente. La versión web muestra una vista previa pero no puede detectar sacudidas.
