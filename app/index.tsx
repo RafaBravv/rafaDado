@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Accelerometer } from 'expo-sensors';
-import { SHAKE_THRESHOLD, DICE_MIN, DICE_MAX, SHAKE_COOLDOWN, DICE_STOP_DURATION } from '../constants/dadoConstants';
+import { SHAKE_THRESHOLD, DICE_MIN, DICE_MAX, SHAKE_COOLDOWN } from '../constants/dadoConstants';
 import { MainScreen } from '@/screens/mainScreen';
 
 export default function App() {
@@ -20,8 +20,8 @@ export default function App() {
         const currentTime = Date.now();
         const timeSinceLastShake = currentTime - lastShakeTime;
 
-        // No detectar sacudidas si el dado está detenido
-        if (!isStopped && acceleration > SHAKE_THRESHOLD && timeSinceLastShake > SHAKE_COOLDOWN) {
+        // Permitir sacudidas solo si no está ya sacudiendo
+        if (!isShaking && acceleration > SHAKE_THRESHOLD && timeSinceLastShake > SHAKE_COOLDOWN) {
           handleShake();
           setLastShakeTime(currentTime);
         }
@@ -37,23 +37,26 @@ export default function App() {
         subscription.remove();
       }
     };
-  }, [lastShakeTime, isStopped]);
+  }, [lastShakeTime, isShaking]);
 
   const handleShake = () => {
     setIsShaking(true);
+    setIsStopped(false);
     
-    // Después de 500ms, generar número y detener el dado
+    // Generar número aleatorio
+    const randomValue = Math.floor(Math.random() * (DICE_MAX - DICE_MIN + 1)) + DICE_MIN;
+    setDiceValue(randomValue);
+    
+    // Después de 0.7 segundos, detener la animación
     setTimeout(() => {
-      const randomValue = Math.floor(Math.random() * (DICE_MAX - DICE_MIN + 1)) + DICE_MIN;
-      setDiceValue(randomValue);
       setIsShaking(false);
       setIsStopped(true);
       
-      // Después de 5 segundos, permitir nueva sacudida
+      // Después de 3 segundos, permitir nueva sacudida
       setTimeout(() => {
         setIsStopped(false);
-      }, DICE_STOP_DURATION);
-    }, 500);
+      }, 3000);
+    }, 700);
   };
 
   return (

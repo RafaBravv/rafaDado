@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export const indice = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#1a1a2e',
+      backgroundColor: '#FAFAFA',
     },
     content: {
       flex: 1,
@@ -25,7 +25,7 @@ export const dado = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
       padding: 40,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#FFF',
       borderRadius: 20,
       minWidth: 200,
       minHeight: 200,
@@ -54,22 +54,22 @@ export const header = StyleSheet.create({
         width: '100%',
         paddingTop: 20,
         paddingHorizontal: 20,
-        backgroundColor: '#16213e',
+        backgroundColor: '#EAEAEA',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: '#e94560',
+        borderBottomColor: '#666',
     },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: '#fff',
+        color: '#333',
     }
 });
 
 export const textoEstado = StyleSheet.create({
     statusText: {
       fontSize: 18,
-      color: '#0f3460',
+      color: '#0F0F0F',
       fontWeight: '600',
     },
 });
