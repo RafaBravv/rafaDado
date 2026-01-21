@@ -52,7 +52,6 @@ export const vistaDado = StyleSheet.create({
 export const header = StyleSheet.create({
     headerContainer: {
         width: '100%',
-        paddingTop: 20,
         paddingHorizontal: 20,
         backgroundColor: '#EAEAEA',
         alignItems: 'center',
@@ -60,7 +59,7 @@ export const header = StyleSheet.create({
         borderBottomColor: '#666',
     },
     title: {
-        fontSize: 32,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#333',
     }
