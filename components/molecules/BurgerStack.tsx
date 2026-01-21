@@ -1,4 +1,6 @@
-// Componente molecular que renderiza TODA la pila de ingredientes
+// components/molecules/BurgerStack.tsx
+// Componente molecular OPTIMIZADO que renderiza la pila de ingredientes
+// ✨ MEJORA: Solo actualiza ingredientes nuevos, no recarga todo
 
 import React, { useState, useEffect, useRef } from 'react';
 import { View } from 'react-native';
@@ -13,7 +15,7 @@ import { BURGER_3D_CONFIG } from '@/constants/burgerConstants';
 import { StyleBurgerStack } from '@/constants/estilosBurger';
 
 interface BurgerStackProps {
-  ingredients: BurgerIngredient[]; // Array de ingredientes a renderizar
+  ingredients: BurgerIngredient[];
 }
 
 export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
@@ -22,19 +24,33 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const frameIdRef = useRef<number | null>(null);
+  
+  // Mapeo de ingredientes cargados: id -> mesh 3D
   const loadedMeshesRef = useRef<Map<string, THREE.Object3D>>(new Map());
+  
+  // Tracking de ingredientes previos para detectar cambios
+  const previousIngredientsRef = useRef<BurgerIngredient[]>([]);
+  
+  // Variables para rotación interactiva
+  const isDraggingRef = useRef(false);
+  const previousTouchRef = useRef<{ x: number; y: number } | null>(null);
+  const rotationRef = useRef({ y: 0 }); // Rotación acumulada
+  const containerRef = useRef<THREE.Group | null>(null);
 
   // Setup inicial de la escena 3D
   useEffect(() => {
     if (!gl) return;
 
     const setupScene = () => {
-      // Crear escena
       const newScene = new THREE.Scene();
       newScene.background = new THREE.Color(0xf5f5f5);
       sceneRef.current = newScene;
 
-      // Configurar cámara
+      // Crear contenedor para todos los ingredientes (permite rotación)
+      const container = new THREE.Group();
+      newScene.add(container);
+      containerRef.current = container;
+
       const camera = new THREE.PerspectiveCamera(
         50,
         gl.drawingBufferWidth / gl.drawingBufferHeight,
@@ -45,12 +61,11 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
       camera.lookAt(0, 0, 0);
       cameraRef.current = camera;
 
-      // Configurar renderer
       const renderer = new Renderer({ gl });
       renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
       rendererRef.current = renderer;
 
-      // Agregar luces
+      // Iluminación
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
       newScene.add(ambientLight);
 
@@ -62,7 +77,6 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
       directionalLight2.position.set(-5, 5, -5);
       newScene.add(directionalLight2);
 
-      // Iniciar loop de renderizado
       startRenderLoop();
     };
 
@@ -78,43 +92,102 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
     };
   }, [gl]);
 
-  // Cargar ingredientes cuando cambien
+  // 🚀 OPTIMIZACIÓN: Solo actualizar ingredientes que cambiaron
   useEffect(() => {
-    if (!sceneRef.current) return;
+    if (!sceneRef.current || !containerRef.current) return;
 
-    const loadIngredients = async () => {
-      const scene = sceneRef.current!;
-      
-      // Limpiar meshes anteriores
-      loadedMeshesRef.current.forEach((mesh) => {
-        scene.remove(mesh);
-      });
-      loadedMeshesRef.current.clear();
+    const updateIngredients = async () => {
+      const container = containerRef.current!;
+      const previousIngredients = previousIngredientsRef.current;
 
-      // Cargar todos los ingredientes
-      for (let i = 0; i < ingredients.length; i++) {
-        const ingredient = ingredients[i];
-        const yPosition = calculateYPosition(i);
-        
-        try {
-          const mesh = await loadModel(
-            ingredient.modelPath,
-            yPosition,
-            ingredient.yRotation
-          );
-          
-          scene.add(mesh);
-          loadedMeshesRef.current.set(ingredient.id, mesh);
-        } catch (error) {
-          console.error(`Error cargando ingrediente ${ingredient.id}:`, error);
+      // Detectar ingredientes nuevos
+      const newIngredients = ingredients.filter(
+        ing => !previousIngredients.find(prev => prev.id === ing.id)
+      );
+
+      // Detectar ingredientes eliminados
+      const removedIngredients = previousIngredients.filter(
+        prev => !ingredients.find(ing => ing.id === prev.id)
+      );
+
+      // Eliminar meshes de ingredientes removidos
+      for (const removed of removedIngredients) {
+        const mesh = loadedMeshesRef.current.get(removed.id);
+        if (mesh) {
+          container.remove(mesh);
+          loadedMeshesRef.current.delete(removed.id);
         }
       }
+
+      // Cargar solo ingredientes nuevos
+      for (const newIng of newIngredients) {
+        try {
+          const yPosition = calculateYPosition(newIng.id);
+          const mesh = await loadModel(
+            newIng.modelPath,
+            yPosition,
+            newIng.yRotation
+          );
+          
+          container.add(mesh);
+          loadedMeshesRef.current.set(newIng.id, mesh);
+        } catch (error) {
+          console.error(`Error cargando ingrediente ${newIng.id}:`, error);
+        }
+      }
+
+      // 🎯 OPTIMIZACIÓN CLAVE: Solo mover el pan de arriba hacia arriba
+      // cuando se agrega un ingrediente nuevo (no reconstruir todo)
+      if (newIngredients.length > 0) {
+        const topBunId = ingredients[ingredients.length - 1]?.id;
+        const topBunMesh = loadedMeshesRef.current.get(topBunId);
+        
+        if (topBunMesh) {
+          const newYPosition = calculateYPosition(topBunId);
+          
+          // Animación suave del pan hacia arriba
+          const startY = topBunMesh.position.y;
+          const duration = 300; // ms
+          const startTime = Date.now();
+
+          const animateTopBun = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+            
+            topBunMesh.position.y = startY + (newYPosition - startY) * eased;
+
+            if (progress < 1) {
+              requestAnimationFrame(animateTopBun);
+            }
+          };
+
+          animateTopBun();
+        }
+      }
+
+      previousIngredientsRef.current = [...ingredients];
     };
 
-    loadIngredients();
+    updateIngredients();
   }, [ingredients]);
 
-  // Función para cargar un modelo 3D
+  // Calcular posición Y de un ingrediente específico
+  const calculateYPosition = (ingredientId: string): number => {
+    const index = ingredients.findIndex(ing => ing.id === ingredientId);
+    if (index === -1) return BURGER_3D_CONFIG.baseYPosition;
+
+    let yPosition = BURGER_3D_CONFIG.baseYPosition;
+    
+    for (let i = 0; i < index; i++) {
+      const ingredientType = ingredients[i].type;
+      yPosition += INGREDIENT_HEIGHTS[ingredientType] + BURGER_3D_CONFIG.ingredientSpacing;
+    }
+    
+    return yPosition;
+  };
+
+  // Cargar modelo 3D
   const loadModel = async (
     modelPath: any,
     yPosition: number,
@@ -124,20 +197,11 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
     const loader = new GLTFLoader();
     
     const gltf = await new Promise<any>((resolve, reject) => {
-      loader.load(
-        modelUri,
-        resolve,
-        undefined,
-        (error: unknown) => {
-          console.error('Error en GLTFLoader:', error);
-          reject(error);
-        }
-      );
-    });    
+      loader.load(modelUri, resolve, undefined, reject);
+    });
 
     const mesh = gltf.scene;
     
-    // Aplicar transformaciones
     mesh.scale.set(
       BURGER_3D_CONFIG.scale,
       BURGER_3D_CONFIG.scale,
@@ -146,10 +210,8 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
     mesh.position.set(0, yPosition, 0);
     mesh.rotation.y = yRotation;
 
-    // Aplicar material a todas las mallas
     mesh.traverse((child: any) => {
       if (child.isMesh) {
-        // Preservar color original si existe, sino usar blanco
         const originalColor = child.material?.color || new THREE.Color(0xFFFFFF);
         
         child.material = new THREE.MeshStandardMaterial({
@@ -163,22 +225,15 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
     return mesh;
   };
 
-  // Calcular la posición Y de cada ingrediente
-  const calculateYPosition = (index: number): number => {
-    let yPosition = BURGER_3D_CONFIG.baseYPosition;
-    
-    for (let i = 0; i < index; i++) {
-      const ingredientType = ingredients[i].type;
-      yPosition += INGREDIENT_HEIGHTS[ingredientType] + BURGER_3D_CONFIG.ingredientSpacing;
-    }
-    
-    return yPosition;
-  };
-
-  // Loop de renderizado continuo
+  // Loop de renderizado continuo con rotación
   const startRenderLoop = () => {
     const render = () => {
       frameIdRef.current = requestAnimationFrame(render);
+
+      // Aplicar rotación al contenedor
+      if (containerRef.current) {
+        containerRef.current.rotation.y = rotationRef.current.y;
+      }
 
       if (rendererRef.current && sceneRef.current && cameraRef.current) {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -189,8 +244,37 @@ export const BurgerStack = ({ ingredients }: BurgerStackProps) => {
     render();
   };
 
+  // 🔄 Handlers para rotación táctil
+  const handleTouchStart = (event: any) => {
+    const touch = event.nativeEvent.touches[0];
+    isDraggingRef.current = true;
+    previousTouchRef.current = { x: touch.pageX, y: touch.pageY };
+  };
+
+  const handleTouchMove = (event: any) => {
+    if (!isDraggingRef.current || !previousTouchRef.current) return;
+
+    const touch = event.nativeEvent.touches[0];
+    const deltaX = touch.pageX - previousTouchRef.current.x;
+    
+    // Rotar en base al movimiento horizontal
+    rotationRef.current.y += deltaX * 0.01;
+    
+    previousTouchRef.current = { x: touch.pageX, y: touch.pageY };
+  };
+
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    previousTouchRef.current = null;
+  };
+
   return (
-    <View style={StyleBurgerStack.container}>
+    <View 
+      style={StyleBurgerStack.container}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <GLView
         style={StyleBurgerStack.glView}
         onContextCreate={(context) => setGL(context)}

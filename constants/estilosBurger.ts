@@ -41,55 +41,24 @@ export const StyleBurgerBuilder = StyleSheet.create({
       fontSize: 16,
       fontWeight: '600',
       color: '#666',
-      marginBottom: 20,
+      marginBottom: 10,
     },
     buttonContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'space-between',
       gap: 10,
-      marginBottom: 15,
     },
-    button: {
-      flex: 1,
-      minWidth: '45%',
-      paddingVertical: 15,
-      paddingHorizontal: 20,
-      borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    meatButton: {
-      backgroundColor: '#8B4513',
-    },
-    cheeseButton: {
-      backgroundColor: '#FFD700',
-    },
-    lettuceButton: {
-      backgroundColor: '#90EE90',
-    },
-    bunButton: {
-      backgroundColor: '#D2691E',
-    },
-    buttonText: {
-      color: '#fff',
+    maxReachedText: {
+      textAlign: 'center',
       fontSize: 16,
       fontWeight: 'bold',
-    },
-    resetButton: {
-      backgroundColor: '#FF6B6B',
-      paddingVertical: 12,
-      paddingHorizontal: 30,
+      color: '#4CAF50',
+      marginTop: 10,
+      padding: 15,
+      backgroundColor: '#E8F5E9',
       borderRadius: 12,
-      alignItems: 'center',
-      marginBottom: 20,
     },
-    resetButtonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
-  
   });
 
 export const StyleBurgerScreen = StyleSheet.create({
@@ -106,5 +75,30 @@ export const StyleBurgerScreen = StyleSheet.create({
       color: '#856404',
       fontSize: 14,
       fontWeight: '600',
+    },
+  });
+
+export const boton = StyleSheet.create({
+    button: {
+      flex: 1,
+      minWidth: '45%',
+      paddingVertical: 15,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 3,
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
     },
   });
